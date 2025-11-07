@@ -1,23 +1,15 @@
-  
- export const config = { runtime: "edge" };
+  export const config = { runtime: "edge" };
 
 export default async function handler(req) {
   try {
     const { nomProduit, descProduit } = await req.json();
 
     if (!nomProduit) {
-      return new Response(JSON.stringify({ error: "Nom du produit manquant" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ error: "Nom du produit manquant" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
     }
-
-    const prompt = `
-Crée un titre SEO + une meta description + 40 hashtags optimisés Vinted et Shopify
-pour ce produit :
-Nom : ${nomProduit}
-Description : ${descProduit || "Aucune description fournie"}.
-`;
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -27,7 +19,21 @@ Description : ${descProduit || "Aucune description fournie"}.
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
-        messages: [{ role: "user", content: prompt }],
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: `Génère : 
+1️⃣ Un titre SEO optimisé (max 110 caractères),
+2️⃣ Une meta description adaptée à Google,
+3️⃣ 40 hashtags Vinted et 40 hashtags Shopify pour un produit appelé "${nomProduit}". 
+Description supplémentaire : ${descProduit}.`
+              }
+            ]
+          }
+        ],
       }),
     });
 
@@ -37,12 +43,12 @@ Description : ${descProduit || "Aucune description fournie"}.
       throw new Error(data?.error?.message || "Erreur API OpenAI");
     }
 
-    const texte = data.choices?.[0]?.message?.content?.trim() || "Aucun résultat.";
-
-    return new Response(JSON.stringify({ result: texte }), {
+    // ✅ On renvoie proprement le JSON
+    return new Response(JSON.stringify(data), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
+
   } catch (error) {
     return new Response(
       JSON.stringify({ error: error.message }),
