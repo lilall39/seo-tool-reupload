@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Outil SEO Automatique – Lil Shop</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    #resultMeta, #resultImage {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      max-width: 90%;
+      display: block;
+      margin: 10px auto;
+      text-align: left;
+    }
+
+    #copyButtons {
+      display: none;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    #copyButtons button {
+      margin: 4px;
+      padding: 6px 10px;
+      border: none;
+      border-radius: 6px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    #copyButtons button:hover {
+      background-color: #45a049;
+    }
+
+    h1, h2, section, footer {
+      text-align: center;
+    }
+
+    textarea {
+      width: 80%;
+      height: 70px;
+    }
+
+    input[type="text"], input[type="file"] {
+      width: 80%;
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+
+    footer {
+      margin-top: 40px;
+      color: gray;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🚀 Outil SEO Lil-Shop</h1>
+
+  <section>
+    <h2>2️⃣ Génération de contenu SEO</h2>
+    <input type="text" id="nomProduit" placeholder="Nom du produit">
+    <textarea id="descProduit" placeholder="Courte description..."></textarea><br>
+
+    <button onclick="avantGeneration(); genererMeta()">Générer le titre + meta + hashtags</button>
+    <button onclick="recommencer()">🔄 Recommencer</button>
+
+    <div id="resultMeta" class="result-box"></div>
+
+    <div id="copyButtons">
+      <button onclick="copierTitre()">📋 Copier Titre</button>
+      <button onclick="copierMeta()">📋 Copier Description</button>
+      <button onclick="copierHashtagsVinted()">📋 Copier Hashtags Vinted</button>
+      <button onclick="copierHashtagsShopify()">📋 Copier Hashtags Shopify</button>
+    </div>
+  </section>
+
+  <hr>
+
+  <section>
+    <h2>📸 Génération depuis une photo</h2>
+    <input type="file" id="imageInput" accept="image/*">
+    <button onclick="analyserImage()">Analyser l’image et générer le contenu</button>
+    <pre id="resultImage" class="result-box"></pre>
+  </section>
+
+  <footer>🧾 Lil-Shop – Outil SEO partagé</footer>
+
+  <script src="script.js"></script>
+
+  <script>
+    function nettoyerTitre(titre) {
+      titre = titre.replace(/\s+/g, ' ').trim();
+      titre = titre.replace(/[.]{2,}/g, '.').replace(/[-]{2,}/g, '-');
+      if (titre.length > 110) titre = titre.slice(0, 107) + "...";
+      return titre;
+    }
+
+    function avantGeneration() {
+      let champ = document.getElementById("nomProduit");
+      champ.value = nettoyerTitre(champ.value);
+    }
+  </script>
+</body>
+</html>
