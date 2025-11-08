@@ -1,12 +1,14 @@
-  export const config = { runtime: "edge" };
+
+export const config = { runtime: "edge" };
 
 export default async function handler(req) {
   try {
-    const { nomProduit, descProduit } = await req.json();
+    const body = await req.json();
+    const { nomProduit, descProduit } = body || {};
 
-    if (!nomProduit) {
+    if (!nomProduit || !descProduit) {
       return new Response(
-        JSON.stringify({ error: "Nom du produit manquant" }),
+        JSON.stringify({ error: "Champs manquants (nomProduit ou descProduit)" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
@@ -22,17 +24,8 @@ export default async function handler(req) {
         messages: [
           {
             role: "user",
-            content: [
-              {
-                type: "text",
-                text: `Génère : 
-1️⃣ Un titre SEO optimisé (max 110 caractères),
-2️⃣ Une meta description adaptée à Google,
-3️⃣ 40 hashtags Vinted et 40 hashtags Shopify pour un produit appelé "${nomProduit}". 
-Description supplémentaire : ${descProduit}.`
-              }
-            ]
-          }
+            content: `Crée un titre SEO, une meta description et 40 hashtags Vinted/Shopify pour : ${nomProduit} (${descProduit}).`,
+          },
         ],
       }),
     });
@@ -40,21 +33,20 @@ Description supplémentaire : ${descProduit}.`
     const data = await response.json();
 
     if (!response.ok) {
+      console.error("Erreur OpenAI :", data);
       throw new Error(data?.error?.message || "Erreur API OpenAI");
     }
 
-    // ✅ On renvoie proprement le JSON
-    return new Response(JSON.stringify(data), {
+    const message = data.choices?.[0]?.message?.content || "Aucune réponse générée.";
+    return new Response(JSON.stringify({ message }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-
   } catch (error) {
+    console.error("Erreur serveur :", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error.message || "Erreur serveur inconnue" }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }
-
-
